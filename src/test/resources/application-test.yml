@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: ${TEST_DB_URL:jdbc:postgresql://localhost:5433/ob_test}
+    username: ${TEST_DB_USER:ob}
+    password: ${TEST_DB_PASSWORD:ob}
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 2
+      idle-timeout: 15000
+
+outbox:
+  worker:
+    enabled: false
+  publisher:
+    url: "http://localhost:9999/webhook"
+  retry:
+    max-attempts: 5
+    base-delay-ms: 50
+    max-delay-ms: 2000
+    jitter: 0.2
+  reclaim:
+    enabled: false
+    timeout-ms: 5000
+    batch-size: 50
+  admin:
+    token: "test-token"

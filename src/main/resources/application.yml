@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ob
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/ob}
+    username: ${DB_USER:ob}
+    password: ${DB_PASSWORD:ob}
+    hikari:
+      pool-name: ob-pool
+      maximum-pool-size: 25
+      minimum-idle: 5
+      connection-timeout: 5000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+outbox:
+  worker:
+    enabled: true
+    threads: 4
+    idle-sleep-ms: 200
+  publisher:
+    url: ${WEBHOOK_URL:http://localhost:9000/webhook}
+    connect-timeout-ms: 2000
+    read-timeout-ms: 5000
+  retry:
+    max-attempts: 5
+    base-delay-ms: 1000
+    max-delay-ms: 300000
+    jitter: 0.2
+  reclaim:
+    enabled: true
+    timeout-ms: 300000
+    interval-ms: 30000
+    batch-size: 50
+  admin:
+    token: ${ADMIN_TOKEN:change-me}

@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ob
+      POSTGRES_USER: ob
+      POSTGRES_PASSWORD: ob
+    ports:
+      - "5433:5432"
+    volumes:
+      - ob-data:/var/lib/postgresql/data
+      # creates test database
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ob -d ob"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # fake webhook receiver for testing
+  webhook:
+    image: mendhak/http-https-echo:31
+    ports:
+      - "9000:8080"
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      webhook:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ob
+      DB_USER: ob
+      DB_PASSWORD: ob
+      WEBHOOK_URL: http://webhook:8080/webhook
+      ADMIN_TOKEN: change-me
+    ports:
+      - "8080:8080"
+
+volumes:
+  ob-data:

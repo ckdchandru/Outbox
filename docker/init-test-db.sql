@@ -1,0 +1,1 @@
+CREATE DATABASE ob_test OWNER ob;
